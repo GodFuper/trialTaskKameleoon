@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  nginx:
+    container_name: proxy_nginx
+    depends_on:
+      - spring
+    image: nginx:latest
+    networks:
+      - network-bridge
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - ./static:/var/www/static
+    restart: always
+  spring:
+    build:
+      context: spring/
+      args:
+        URL_GIT: "https://github.com/GodFuper/trialTaskKameleoon.git"
+    image: super4121/trial-task-kameleoon
+    container_name: "spring"
+    restart: unless-stopped
+    environment:
+      - "spring.datasource.url=jdbc:h2:file:/app/database/h2"
+    volumes:
+      - spring-data:/app/database
+    ports:
+      - "8080:8080"
+    networks:
+      - network-bridge
+networks:
+  network-bridge:
+    driver: bridge
+volumes:
+  spring-data:
